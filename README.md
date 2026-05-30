@@ -18,6 +18,17 @@ Monad Pay Button sits between the MercadoPago payment and Monad:
 3. The AI agent receives the confirmation, fetches the live ARS/USD rate (with a hardcoded fallback), computes the USDC amount, and calls `settlePayment` on Monad.
 4. USDC is minted to the merchant's wallet. The agent returns an LLM-generated receipt and answers natural-language questions ("how much did I convert today?").
 
+### 3. User Flows & Integrations
+
+**Flujos de Pago (Payment Flows)**
+1. **QR MercadoPago:** El cliente escanea y paga en pesos. El Agente IA intercepta el webhook, convierte los ARS a USD, y liquida enviando **USDC en Monad** a la wallet del comercio.
+2. **QR Cripto:** El cliente paga directamente con USDC en cualquier red compatible. El sistema lo rutea y el comercio recibe **USDC en Monad**.
+
+**Métodos de Integración para el Comercio**
+- **Uso desde Plugin (Shopify / WordPress):** Una extensión nativa de 1 clic que inyecta automáticamente el "Monad Pay Button" en el checkout.
+- **Uso desde API:** Endpoints RESTful para que e-commerces custom envíen sus webhooks y liquiden programáticamente.
+- **Uso mediante Agente IA:** Una *Skill* (SDK) lista para que IAs autónomas creen links de cobro y gestionen finanzas por el comercio de forma conversacional.
+
 ### 3. Cómo se usa Monad
 Per-payment on-chain settlement at retail scale only works when transactions are near-free and confirm in milliseconds. Monad's high throughput and low latency make it viable to settle every QR payment individually, where slower or pricier chains would not.
 
