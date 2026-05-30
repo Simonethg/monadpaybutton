@@ -142,6 +142,28 @@
         .btn-text { font-weight: 700; font-size: 22px; margin-bottom: 4px; }
         .btn-subtext { font-size: 13px; font-weight: 500; opacity: 0.9; font-family: var(--font-mono); }
 
+        .cta-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        
+        .btn-secondary {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            background: transparent;
+            color: var(--text);
+            padding: 24px 60px;
+            border-radius: var(--r-md);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 2px solid var(--border);
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--violet);
+            background: rgba(108, 71, 255, 0.05);
+            transform: translateY(-4px);
+        }
+
         /* Stats Grid */
         .stats-section { padding: 100px 0; border-top: 1px solid var(--border); }
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; }
@@ -209,10 +231,16 @@
                 <h1>Cobrá en moneda local.<br><em>Liquidá en dólares virtuales.</em></h1>
                 <p>Protegé tus ventas de la inflación. El cliente paga con QR o wallet — vos recibís USDC en Monad al instante.</p>
                 
-                <a href="checkout.html" class="btn-main" style="text-decoration:none;" aria-label="Ver la demo del botón en vivo">
-                    <span class="btn-text">Ver Demo en Vivo</span>
-                    <span class="btn-subtext">Probá el flujo de pago ahora</span>
-                </a>
+                <div class="cta-group">
+                    <a href="checkout.html" class="btn-main" style="text-decoration:none;" aria-label="Ver la demo del botón en vivo">
+                        <span class="btn-text">Ver Demo en Vivo</span>
+                        <span class="btn-subtext">Probá el flujo de pago ahora</span>
+                    </a>
+                    <a href="demo.html" class="btn-secondary" style="text-decoration:none;" aria-label="Ver configuración">
+                        <span class="btn-text">Dashboard Dev</span>
+                        <span class="btn-subtext">Conectá API y Wallet</span>
+                    </a>
+                </div>
             </div>
         </section>
 
@@ -307,10 +335,16 @@
                 <h1 style="color: var(--violet); margin-top: 20px;">El futuro es <em>USDC en Monad.</em></h1>
                 <p style="margin: 48px auto;">Implementá en menos de 3 minutos y protegé tus ventas hoy mismo.</p>
                 
-                <a href="checkout.html" class="btn-main" style="text-decoration:none;" aria-label="Ver la demo en vivo">
-                    <span class="btn-text">Ver Demo en Vivo</span>
-                    <span class="btn-subtext">Probá el flujo interactivo</span>
-                </a>
+                <div class="cta-group">
+                    <a href="checkout.html" class="btn-main" style="text-decoration:none;" aria-label="Ver la demo en vivo">
+                        <span class="btn-text">Ver Demo en Vivo</span>
+                        <span class="btn-subtext">Probá el flujo interactivo</span>
+                    </a>
+                    <a href="demo.html" class="btn-secondary" style="text-decoration:none;" aria-label="Ver configuración">
+                        <span class="btn-text">Dashboard Dev</span>
+                        <span class="btn-subtext">Conectá API y Wallet</span>
+                    </a>
+                </div>
             </div>
         </section>
     </main>
