@@ -1,6 +1,6 @@
-# PesoBridge — Monad Blitz Buenos Aires 🇦🇷
+# Monad Pay Button — Monad Blitz Buenos Aires 🇦🇷
 
-**PesoBridge** lets any Argentine merchant keep charging with the MercadoPago QR they already use, while automatically receiving digital dollars (USDC) on Monad. A buyer pays in pesos; an AI settlement agent confirms the payment, converts ARS to USDC at the live rate, and mints USDC on-chain to the merchant in seconds.
+**Monad Pay Button** lets any Argentine merchant keep charging with the MercadoPago QR they already use, while automatically receiving digital dollars (USDC) on Monad. A buyer pays in pesos; an AI settlement agent confirms the payment, converts ARS to USDC at the live rate, and mints USDC on-chain to the merchant in seconds.
 
 *Note: All code in this repository was initiated and built during the Monad Blitz Buenos Aires hackathon.*
 
@@ -12,7 +12,7 @@ Our pitch follows the recommended structure:
 Argentina runs on MercadoPago QR for everyday payments, but the peso loses value constantly. Merchants want dollars, and getting them on-chain today means manual exchanges, KYC friction, and crypto knowledge most shop owners do not have.
 
 ### 2. Solución
-PesoBridge sits between the MercadoPago payment and Monad:
+Monad Pay Button sits between the MercadoPago payment and Monad:
 1. The merchant generates a MercadoPago QR for an amount in ARS.
 2. The buyer pays in pesos (sandbox in the demo, with a simulate fallback so the live flow never breaks).
 3. The AI agent receives the confirmation, fetches the live ARS/USD rate (with a hardcoded fallback), computes the USDC amount, and calls `settlePayment` on Monad.
@@ -26,7 +26,7 @@ A payment rail that turns MercadoPago revenue into self-custodied dollars on-cha
 
 ## Architecture & Deliverables
 
-- **Smart Contract (Monad Testnet)** — `contracts/src/PesoBridge.sol`: a minimal USDC-style ERC-20 (`mUSDC`, 6 decimals) with an agent-gated `settlePayment(merchant, usdcAmount, arsAmount, mpPaymentId)`. Includes a `MerchantRegistry` and per-payment replay protection.
+- **Smart Contract (Monad Testnet)** — `contracts/src/Monad Pay Button.sol`: a minimal USDC-style ERC-20 (`mUSDC`, 6 decimals) with an agent-gated `settlePayment(merchant, usdcAmount, arsAmount, mpPaymentId)`. Includes a `MerchantRegistry` and per-payment replay protection.
 - **Agent** — `agent/server.js`: Node + Express + ethers. Endpoint `/webhook/mercadopago` settles a confirmed payment; `/crypto-confirm` confirms direct USDC transfers; `/ask` answers merchant questions. Optional Anthropic LLM for receipts and Q&A.
 - **Frontend Demo** — `frontend/demo.html`: single-page merchant checkout with light/dark theme and WCAG 2.1 AA accessibility. Displays the agnostic QR and runs the simulation with settlement explorer links.
 

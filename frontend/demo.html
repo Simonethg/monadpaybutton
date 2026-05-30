@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PesoBridge — Dashboard del Comercio</title>
+  <title>Monad Pay Button — Dashboard del Comercio</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.10.0/ethers.umd.min.js"></script>
   <style>
     :root {
@@ -119,7 +119,7 @@
   <header>
     <div class="brand">
       <span style="font-size: 1.5rem">⚡</span>
-      <h1>PesoBridge Dashboard</h1>
+      <h1>Monad Pay Button Dashboard</h1>
       <span class="badge">Merchant Hub</span>
     </div>
   </header>
@@ -128,7 +128,7 @@
     <!-- 1. API Connection -->
     <section class="card">
       <h2>1. Conectar MercadoPago / MercadoLibre</h2>
-      <p>Otorga acceso a PesoBridge para leer tus cobros y webhooks entrantes.</p>
+      <p>Otorga acceso a Monad Pay Button para leer tus cobros y webhooks entrantes.</p>
       
       <button class="btn-mp" id="btn-mp">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
@@ -215,7 +215,7 @@
           return;
         }
 
-        const message = `Autorizo a PesoBridge a liquidar pagos en esta wallet: ${address}\nNonce: ${Date.now()}`;
+        const message = `Autorizo a Monad Pay Button a liquidar pagos en esta wallet: ${address}\nNonce: ${Date.now()}`;
         const signature = await signer.signMessage(message);
 
         btnWallet.style.display = 'none';

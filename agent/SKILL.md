@@ -1,6 +1,6 @@
-# PesoBridge AI Skill
+# Monad Pay Button AI Skill
 
-The PesoBridge AI Skill allows an AI assistant to interact with the PesoBridge settlement router on behalf of the merchant.
+The Monad Pay Button AI Skill allows an AI assistant to interact with the Monad Pay Button settlement router on behalf of the merchant.
 
 ## Endpoints
 
