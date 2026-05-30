@@ -21,7 +21,7 @@
     link.id = 'monad-pay-css';
     link.rel = 'stylesheet';
     // For local dev, we assume it's in the same folder. In production this would be absolute URL.
-    link.href = './monad-pay.css?v=' + Date.now(); 
+    link.href = './monad-pay.css?v=' + Date.now() + Math.random(); 
     document.head.appendChild(link);
     
     // Inject fonts
