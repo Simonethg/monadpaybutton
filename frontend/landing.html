@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monad Pay Button — Ahorrá en comisiones, integrá en 3 minutos.</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='13' fill='%236C47FF'/%3E%3Cpath d='M11 15 C 21 15, 23 24, 31 24' fill='none' stroke='%23fff' stroke-width='5.2' stroke-linecap='round'/%3E%3Cpath d='M11 33 C 21 33, 23 24, 31 24' fill='none' stroke='%23fff' stroke-width='5.2' stroke-linecap='round'/%3E%3Ccircle cx='34' cy='24' r='4' fill='%23fff'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --violet: #6C47FF;
+            --violet-light: #9D85FF;
+            --blue: #2B5BF0;
+            --green: #2DD4A0;
+            --bg: #0E0D14;
+            --surface: #18161F;
+            --text: #F2F1F6;
+            --text-muted: #A19EB0;
+            --border: #2A2735;
+            --grad: linear-gradient(120deg, #6C47FF, #2B5BF0);
+            --focus-ring: 0 0 0 3px rgba(43, 91, 240, 0.5);
+            --font-sans: 'IBM Plex Sans', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --font-serif: 'Newsreader', serif;
+            --wrap: 1200px;
+            --r-lg: 32px;
+            --r-md: 16px;
+        }
+
+        [data-theme="light"] {
+            --bg: #F6F6F8;
+            --surface: #FFFFFF;
+            --text: #16151C;
+            --text-muted: #56545F;
+            --border: #E4E2EC;
+            --green: #0B7D5A;
+            --violet-light: #6C47FF;
+            --focus-ring: 0 0 0 3px rgba(108, 71, 255, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            transition: background 0.4s ease, color 0.4s ease;
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 40px; }
+
+        :focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: 4px; }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            padding: 20px 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            background: rgba(var(--bg), 0.8);
+        }
+
+        .nav-inner { display: flex; justify-content: space-between; align-items: center; }
+
+        .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 22px; text-decoration: none; color: var(--text); }
+
+        .nav-actions { display: flex; gap: 16px; align-items: center; }
+
+        .theme-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 180px 0 100px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: -20%; left: 50%;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(108, 71, 255, 0.12) 0%, transparent 70%);
+            transform: translateX(-50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: clamp(2.8rem, 9vw, 5.5rem);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            margin-bottom: 32px;
+        }
+
+        h1 em { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--violet); }
+
+        .hero p {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: var(--text-muted);
+            max-width: 850px;
+            margin: 0 auto 48px;
+        }
+
+        .btn-main {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--grad);
+            color: #fff;
+            padding: 24px 60px;
+            border-radius: var(--r-md);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 10px 40px rgba(108, 71, 255, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(108, 71, 255, 0.45);
+        }
+
+        .btn-text { font-weight: 700; font-size: 22px; margin-bottom: 4px; }
+        .btn-subtext { font-size: 13px; font-weight: 500; opacity: 0.9; font-family: var(--font-mono); }
+
+        /* Stats Grid */
+        .stats-section { padding: 100px 0; border-top: 1px solid var(--border); }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; }
+        .stat-card { text-align: left; }
+        .stat-val { font-family: var(--font-mono); font-size: 4.5rem; font-weight: 600; display: block; margin-bottom: 12px; color: var(--violet); }
+        .stat-label { color: var(--text-muted); font-size: 1.2rem; font-weight: 500; }
+
+        /* Compatibility Strip */
+        .compatibility { padding: 60px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
+        .comp-wrap { display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 30px; opacity: 0.8; }
+        .comp-item { font-family: var(--font-mono); font-weight: 600; font-size: 18px; color: var(--text-muted); }
+
+        /* Comparison Section */
+        .comparison { padding: 120px 0; background: var(--surface); border-radius: var(--r-lg); margin: 0 40px; }
+        .comp-header { text-align: center; margin-bottom: 64px; }
+        .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; padding: 0 60px; }
+        .comp-card { background: var(--bg); padding: 56px; border-radius: var(--r-lg); border: 1px solid var(--border); position: relative; }
+        .comp-card.highlight { border-color: var(--violet); box-shadow: 0 0 60px rgba(108, 71, 255, 0.08); }
+        .badge { position: absolute; top: 24px; right: 24px; background: var(--violet); color: white; padding: 6px 16px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+        .comp-price { font-family: var(--font-mono); font-size: 5.5rem; font-weight: 700; margin-bottom: 20px; display: block; letter-spacing: -0.05em; }
+        .highlight .comp-price { color: var(--violet); }
+
+        /* Features */
+        .features { padding: 140px 0; }
+        .feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; }
+        .feat-visual { background: var(--surface); height: 500px; border-radius: var(--r-lg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; position: relative; }
+
+        /* IA Box */
+        .ia-section { padding: 140px 0; }
+        .ia-box { border: 2px solid var(--violet); padding: 80px; border-radius: var(--r-lg); background: rgba(108, 71, 255, 0.02); max-width: 1000px; margin: 0 auto; text-align: center; }
+
+        /* Footer */
+        footer { padding: 120px 0 60px; border-top: 1px solid var(--border); text-align: center; }
+        .footer-logo { font-size: 36px; font-weight: 700; margin-bottom: 48px; display: block; }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 1024px) {
+            .stats-grid, .comp-grid, .feat-grid { grid-template-columns: 1fr; }
+            .comparison { margin: 0 20px; }
+            .comp-grid { padding: 0 32px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav aria-label="Navegación principal">
+        <div class="wrap nav-inner">
+            <a href="#" class="logo" aria-label="Monad Pay Home">
+                <svg width="32" height="32" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="13" fill="#6C47FF"/><path d="M11 15 C 21 15, 23 24, 31 24" fill="none" stroke="#fff" stroke-width="5.2" stroke-linecap="round"/><path d="M11 33 C 21 33, 23 24, 31 24" fill="none" stroke="#fff" stroke-width="5.2" stroke-linecap="round"/><circle cx="34" cy="24" r="4" fill="#fff"/></svg>
+                <span>Monad <b>Pay</b></span>
+            </a>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Cambiar a modo claro/oscuro">☾</button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-bg"></div>
+            <div class="wrap reveal">
+                <h1>Cobrá en moneda local.<br><em>Liquidá en dólares virtuales.</em></h1>
+                <p>Protegé tus ventas de la inflación. El cliente paga con QR o wallet — vos recibís USDC en Monad al instante.</p>
+                
+                <button class="btn-main" aria-label="Integrar Monad Pay Button en menos de 3 minutos">
+                    <span class="btn-text">Integrar botón de pago</span>
+                    <span class="btn-subtext">Ahorrá en comisiones en menos de 3 min</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="compatibility">
+            <div class="wrap reveal">
+                <div class="comp-wrap">
+                    <span class="comp-item">Shopify</span>
+                    <span class="comp-item">Tiendanube</span>
+                    <span class="comp-item">WordPress</span>
+                    <span class="comp-item">Landings Personalizadas</span>
+                    <span class="comp-item">Agentes de IA</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-section">
+            <div class="wrap reveal">
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <span class="stat-val">68%</span>
+                        <h2 class="stat-label">De los e-commerce no tienen equipo de desarrollo. Solución plug-and-play.</h2>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-val">$33.9T</span>
+                        <h2 class="stat-label">E-commerce Global 2025. Stripe no llega a LATAM, nosotros sí.</h2>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-val">61.8%</span>
+                        <h2 class="stat-label">Adopción de stablecoins en Argentina. La demanda es hoy.</h2>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="comparison">
+            <div class="wrap reveal">
+                <header class="comp-header">
+                    <span class="eyebrow">Eficiencia Radical</span>
+                    <h2>Recuperá tu margen de ganancia</h2>
+                    <p>Dejá de regalar tus ventas a los intermediarios locales y a la devaluación constante.</p>
+                </header>
+                <div class="comp-grid">
+                    <article class="comp-card">
+                        <h3>Tradicional</h3>
+                        <span class="comp-price">6.39%</span>
+                        <p>+ IVA. Liquidación en 14 días. Atrapado en una moneda que pierde valor cada hora.</p>
+                    </article>
+                    <article class="comp-card highlight">
+                        <span class="badge">Recomendado</span>
+                        <h3>Monad Pay</h3>
+                        <span class="comp-price">&lt; 1%</span>
+                        <p>Liquidación instantánea en USDC. Estabilidad total on-chain en Monad.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="wrap reveal">
+                <div class="feat-grid">
+                    <div class="feat-text">
+                        <span class="eyebrow">Infraestructura Monad</span>
+                        <h2>Liquidación Retail a escala masiva</h2>
+                        <p>Monad permite costos de transacción de <strong>$0.001</strong>. Es la única red capaz de procesar cada compra minorista sin devorar el margen.</p>
+                        <p>Desde un café hasta una remera, cada transacción se liquida on-chain en milisegundos, garantizando estabilidad inmediata.</p>
+                    </div>
+                    <div class="feat-visual" aria-hidden="true">
+                        <div style="text-align: center;">
+                            <span style="font-family: var(--font-mono); font-size: 26px; color: var(--violet); font-weight: 600;">throughput masivo</span>
+                            <div style="height: 3px; width: 220px; background: var(--grad); margin: 24px auto; border-radius: 10px;"></div>
+                            <span style="color: var(--text-muted); font-size: 18px;">Liquidación en milisegundos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="ia-section">
+            <div class="wrap reveal">
+                <div class="ia-box">
+                    <span class="eyebrow">Agentic Economy</span>
+                    <h2>Diseñado para Agentes de IA</h2>
+                    <p>No es solo un botón para humanos. Es una infraestructura programable. Nuestro SDK permite que cualquier agente autónomo gestione cobros y liquidaciones nativamente.</p>
+                    <a href="https://github.com/Simonethg/monadpaybutton/" style="color: var(--violet); font-family: var(--font-mono); text-decoration: none; font-weight: 700; font-size: 18px;" target="_blank" rel="noopener">Explorar SDK en GitHub →</a>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding: 140px 0; text-align: center;">
+            <div class="wrap reveal">
+                <h2>Muy pocos comercios en LATAM quieren mantener su dinero en moneda local.</h2>
+                <h1 style="color: var(--violet); margin-top: 20px;">El futuro es <em>USDC en Monad.</em></h1>
+                <p style="margin: 48px auto;">Implementá en menos de 3 minutos y protegé tus ventas hoy mismo.</p>
+                
+                <button class="btn-main" aria-label="Empezar a ahorrar en comisiones ahora">
+                    <span class="btn-text">Empezar ahora</span>
+                    <span class="btn-subtext">Instalación en menos de 3 min</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="wrap reveal">
+            <span class="footer-logo">Monad Pay</span>
+            <p style="font-size: 15px; margin-bottom: 24px; color: var(--text-muted);">© 2026 Monad Pay Button. Construido para la nueva economía de LATAM.</p>
+            <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); opacity: 0.7; max-width: 600px; margin: 0 auto;">
+                Fuentes: Grand View Research 2025 · Mercado Pago Business 2025 · Precision Reports 2025 · Chainalysis 2025
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', nextTheme);
+            themeToggle.textContent = nextTheme === 'dark' ? '☾' : '☀';
+            localStorage.setItem('theme', nextTheme);
+        });
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            html.setAttribute('data-theme', savedTheme);
+            themeToggle.textContent = savedTheme === 'dark' ? '☾' : '☀';
+        }
+    </script>
+</body>
+</html>
