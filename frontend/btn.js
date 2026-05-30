@@ -232,7 +232,71 @@
     });
 
     modalWrapper.querySelector('#pb-btn-qr-confirm').addEventListener('click', startProcessing);
-    modalWrapper.querySelector('#pb-btn-wallet-confirm').addEventListener('click', startProcessing);
+    modalWrapper.querySelector('#pb-btn-wallet-confirm').addEventListener('click', async () => {
+      const btn = modalWrapper.querySelector('#pb-btn-wallet-confirm');
+      const originalText = btn.innerHTML;
+      
+      try {
+        if (!window.ethereum) {
+          alert("MetaMask (u otra wallet Web3) no detectada. Por favor instala la extensión.");
+          return;
+        }
+
+        btn.innerHTML = `<span class="pb-btn-text-default">Conectando...</span>`;
+        
+        // 1. Request Account
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+
+        // 2. Switch to Monad Testnet
+        const monadChainId = '0x279f'; // 10143 in hex
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: monadChainId }],
+          });
+        } catch (switchError) {
+          // This error code indicates that the chain has not been added to MetaMask.
+          if (switchError.code === 4902) {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: monadChainId,
+                  chainName: 'Monad Testnet',
+                  rpcUrls: ['https://testnet-rpc.monad.xyz/'],
+                  nativeCurrency: { name: 'MON', symbol: 'MON', decimals: 18 },
+                  blockExplorerUrls: ['https://testnet.monadexplorer.com/']
+                }
+              ],
+            });
+          } else {
+            throw switchError;
+          }
+        }
+
+        // 3. Sign a message to confirm
+        btn.innerHTML = `<span class="pb-btn-text-default">Firma en tu wallet...</span>`;
+        const msg = `Confirmo el pago de ${currency} ${amount} vía Monad Pay Button.\n\nComercio: Academia QA\nTimestamp: ${Date.now()}`;
+        
+        // Convert string to hex for personal_sign
+        const msgHex = '0x' + Array.from(new TextEncoder().encode(msg)).map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        await window.ethereum.request({
+          method: 'personal_sign',
+          params: [msgHex, account],
+        });
+
+        // If signed successfully, proceed to the standard animation
+        startProcessing();
+      } catch (err) {
+        console.error(err);
+        alert("La transacción fue cancelada o hubo un error: " + err.message);
+      } finally {
+        // Reset button if we didn't proceed (or briefly before animation overwrites it)
+        btn.innerHTML = originalText;
+      }
+    });
     modalWrapper.querySelector('#pb-btn-done').addEventListener('click', finishFlow);
   }
 
