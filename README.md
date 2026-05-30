@@ -38,7 +38,15 @@ Per-payment on-chain settlement at retail scale only works when transactions are
 ### 4. Modelo de negocio / Impacto
 A payment rail that turns MercadoPago revenue into self-custodied dollars on-chain, charging a small spread or per-settlement fee. It gives Argentine merchants dollar savings without crypto friction, and is distributable later as a WooCommerce or Shopify app.
 
-## Architecture & Deliverables
+## 🛠 Tech Stack
+
+- **Blockchain:** Monad Testnet (EVM compatible, sub-second finality).
+- **Smart Contracts:** Solidity, Hardhat, OpenZeppelin.
+- **Agent/Backend:** Node.js, Express, `ethers.js` v6, Anthropic Claude (LLM).
+- **Frontend/UI:** Vanilla HTML/CSS/JS (Zero dependencies, easily embeddable).
+- **Deployment:** Vercel (Frontend).
+
+## 🏗 Architecture & Deliverables
 
 - **Smart Contract (Monad Testnet)** — `contracts/src/Monad Pay Button.sol`: a minimal USDC-style ERC-20 (`mUSDC`, 6 decimals) with an agent-gated `settlePayment(merchant, usdcAmount, arsAmount, mpPaymentId)`. Includes a `MerchantRegistry` and per-payment replay protection.
 - **Agent** — `agent/server.js`: Node + Express + ethers. Endpoint `/webhook/mercadopago` settles a confirmed payment; `/crypto-confirm` confirms direct USDC transfers; `/ask` answers merchant questions. Optional Anthropic LLM for receipts and Q&A.
@@ -93,9 +101,12 @@ Open your browser and explore these two URLs:
   👉 **`http://localhost:3000/demo.html`**  
   *What it does:* Shows the Merchant Dashboard. Enter an amount, generate the payment QR, and use the button to simulate MercadoPago confirming the payment. This triggers the Webhook to the agent on port 8787, which settles the transaction on-chain and returns the real Monad block explorer link.
 
-## Deployment reference
+## 🟣 Monad Deployment
 
-- **Chain ID**: `10143`
-- **RPC**: `https://testnet-rpc.monad.xyz`
-- **Explorer**: `https://testnet.monadexplorer.com`
-- **Deployed Contract Address**: `0x4435060926077427821D3121B14aB3Eaf5889403`
+Our Smart Contract is deployed and verified on the Monad Testnet:
+
+- **Deployed Contract Address:** [`0x4435060926077427821D3121B14aB3Eaf5889403`](https://testnet.monadexplorer.com/address/0x4435060926077427821D3121B14aB3Eaf5889403) *(Click to view on Explorer)*
+- **Network Name:** Monad Testnet
+- **Chain ID:** `10143`
+- **RPC Endpoint:** `https://testnet-rpc.monad.xyz`
+- **Block Explorer:** [https://testnet.monadexplorer.com](https://testnet.monadexplorer.com)
