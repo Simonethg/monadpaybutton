@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -377,14 +377,14 @@
             const currentTheme = html.getAttribute('data-theme');
             const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', nextTheme);
-            themeToggle.textContent = nextTheme === 'dark' ? '☾' : '☀';
+            themeToggle.textContent = nextTheme === 'dark' ? '☀' : '☾';
             localStorage.setItem('theme', nextTheme);
         });
 
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             html.setAttribute('data-theme', savedTheme);
-            themeToggle.textContent = savedTheme === 'dark' ? '☾' : '☀';
+            themeToggle.textContent = savedTheme === 'dark' ? '☀' : '☾';
         }
     </script>
 </body>
