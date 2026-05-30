@@ -1,7 +1,7 @@
 # Monad Pay Button — Monad Blitz Buenos Aires 🇦🇷
 
 🎉 **LIVE DEMO:** [https://monadpaybutton.vercel.app/](https://monadpaybutton.vercel.app/)
-*(Landing Page interactiva y demo funcional del botón de pagos)*
+*(Interactive Landing Page and functional checkout demo)*
 
 **Monad Pay Button** lets any Argentine merchant keep charging with the MercadoPago QR they already use, while automatically receiving digital dollars (USDC) on Monad. A buyer pays in pesos; an AI settlement agent confirms the payment, converts ARS to USDC at the live rate, and mints USDC on-chain to the merchant in seconds.
 
@@ -23,14 +23,14 @@ Monad Pay Button sits between the MercadoPago payment and Monad:
 
 ### 3. User Flows & Integrations
 
-**Flujos de Pago (Payment Flows)**
-1. **QR MercadoPago:** El cliente escanea y paga en pesos. El Agente IA intercepta el webhook, convierte los ARS a USD, y liquida enviando **USDC en Monad** a la wallet del comercio.
-2. **QR Cripto:** El cliente paga directamente con USDC en cualquier red compatible. El sistema lo rutea y el comercio recibe **USDC en Monad**.
+**Payment Flows**
+1. **MercadoPago QR:** The customer scans and pays in local currency (ARS). The AI Agent intercepts the webhook, converts ARS to USD, and settles the payment by sending **USDC on Monad** to the merchant's wallet.
+2. **Crypto QR:** The customer pays directly with USDC on any compatible network. The system routes the transaction and the merchant receives **USDC on Monad**.
 
-**Métodos de Integración para el Comercio**
-- **Uso desde Plugin (Shopify / WordPress):** Una extensión nativa de 1 clic que inyecta automáticamente el "Monad Pay Button" en el checkout.
-- **Uso desde API:** Endpoints RESTful para que e-commerces custom envíen sus webhooks y liquiden programáticamente.
-- **Uso mediante Agente IA:** Una *Skill* (SDK) lista para que IAs autónomas creen links de cobro y gestionen finanzas por el comercio de forma conversacional.
+**Merchant Integration Methods**
+- **Plugin (Shopify / WordPress):** A 1-click native extension that automatically injects the "Monad Pay Button" into the checkout.
+- **API Integration:** RESTful endpoints for custom e-commerce platforms to send webhooks and settle programmatically.
+- **AI Agent:** A ready-to-use *Skill* (SDK) for autonomous AIs to generate payment links and manage merchant finances via conversational interfaces.
 
 ### 3. Cómo se usa Monad
 Per-payment on-chain settlement at retail scale only works when transactions are near-free and confirm in milliseconds. Monad's high throughput and low latency make it viable to settle every QR payment individually, where slower or pricier chains would not.
@@ -44,54 +44,54 @@ A payment rail that turns MercadoPago revenue into self-custodied dollars on-cha
 - **Agent** — `agent/server.js`: Node + Express + ethers. Endpoint `/webhook/mercadopago` settles a confirmed payment; `/crypto-confirm` confirms direct USDC transfers; `/ask` answers merchant questions. Optional Anthropic LLM for receipts and Q&A.
 - **Frontend Demo** — `frontend/demo.html`: single-page merchant checkout with light/dark theme and WCAG 2.1 AA accessibility. Displays the agnostic QR and runs the simulation with settlement explorer links.
 
-## 🚀 Cómo probar el proyecto (Paso a Paso)
+## 🚀 How to Run the Project (Step by Step)
 
-Sigue estos pasos para levantar el entorno completo en tu máquina local y probar tanto la integración UI como el backend que se comunica con Monad Testnet.
+Follow these steps to set up the complete environment on your local machine and test both the UI integration and the backend communicating with the Monad Testnet.
 
-### 1. Iniciar el Agente (Backend)
-El agente escucha los webhooks simulados de MercadoPago y ejecuta las transacciones en Monad.
+### 1. Start the Agent (Backend)
+The agent listens to the simulated MercadoPago webhooks and executes the transactions on Monad.
 
-1. Abre una terminal y navega a la carpeta del agente:
+1. Open a terminal and navigate to the agent folder:
    ```bash
    cd agent
    ```
-2. Instala las dependencias:
+2. Install dependencies:
    ```bash
    npm install
    ```
-3. Configura las variables de entorno (ya hay un `.env.example` o puedes usar el `.env` provisto si tienes las claves):
+3. Set up the environment variables (you can use `.env.example` or the provided `.env` if you have the keys):
    ```bash
    cp .env.example .env
    ```
-4. Arranca el servidor del agente (requiere Node.js v20+ por la carga de env-file):
+4. Start the agent server (requires Node.js v20+ for env-file support):
    ```bash
    npm start
    ```
-   > Deberías ver: `Agent router running on port 8787`
+   > You should see: `Agent router running on port 8787`
 
-### 2. Levantar la Interfaz Gráfica (Frontend)
-El frontend contiene la simulación del QR, el nuevo botón **Monad Pay Button**, y el flujo interactivo.
+### 2. Start the Frontend (UI)
+The frontend contains the QR simulation, the new **Monad Pay Button**, and the interactive flows.
 
-1. Abre **otra** pestaña en tu terminal y navega a la carpeta raíz o a la carpeta `frontend`:
+1. Open **another** terminal tab and navigate to the `frontend` folder:
    ```bash
    cd frontend
    ```
-2. Inicia un servidor web local (puedes usar `serve`, `http-server` o el que prefieras):
+2. Start a local web server (you can use `serve`, `http-server`, etc.):
    ```bash
    npx serve -l 3000
    ```
 
-### 3. Probar las Demos (Los 2 flujos)
+### 3. Test the Demos (The 2 flows)
 
-Abre tu navegador y explora estas dos URLs:
+Open your browser and explore these two URLs:
 
-- 🎨 **El "Monad Pay Button" UI (Checkout de Integración)**  
+- 🎨 **The "Monad Pay Button" UI (Checkout Integration)**  
   👉 **`http://localhost:3000/checkout.html`**  
-  *¿Qué hace?* Muestra cómo un comercio real (ej. Academia QA) integra el botón embebible de 1 sola línea de código en su propio flujo de carrito de compras, con soporte para Modo Oscuro/Claro automático. Haz clic en el botón de pago para ver el modal animado con sus 5 estados (Elección de riel → Código QR/Wallet → Procesamiento → Éxito).
+  *What it does:* Shows how a real merchant integrates the 1-line-of-code embeddable button into their own shopping cart, featuring automatic Light/Dark mode. Click the payment button to view the animated modal with its 5 states (Rail Selection → QR/Wallet → Processing → Success).
 
-- ⚙️ **La Demo Funcional E2E con el Agente**  
+- ⚙️ **The E2E Functional Demo with the Agent**  
   👉 **`http://localhost:3000/demo.html`**  
-  *¿Qué hace?* Muestra el dashboard del comerciante. Ingresa un monto, genera el QR de cobro, y usa el botón para simular que MercadoPago confirmó el pago. Esto dispara el Webhook al agente en el puerto 8787, quien liquida la transacción on-chain y devuelve el link real al explorador de Monad.
+  *What it does:* Shows the Merchant Dashboard. Enter an amount, generate the payment QR, and use the button to simulate MercadoPago confirming the payment. This triggers the Webhook to the agent on port 8787, which settles the transaction on-chain and returns the real Monad block explorer link.
 
 ## Deployment reference
 
