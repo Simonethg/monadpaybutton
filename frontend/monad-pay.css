@@ -74,7 +74,8 @@
   justify-content: center;
   gap: 12px;
   min-height: 56px;
-  min-width: 280px;
+  min-width: 200px;
+  max-width: 100%;
   padding: 0 24px;
   border-radius: var(--pb-r-pill);
   background: var(--pb-gradient);
@@ -230,6 +231,8 @@
   box-shadow: var(--pb-shadow-modal);
   width: 90%;
   max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
   padding: 32px 24px;
   position: relative;
   transform: translateY(20px) scale(0.95);
