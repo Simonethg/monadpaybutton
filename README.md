@@ -1,5 +1,8 @@
 # Monad Pay Button — Monad Blitz Buenos Aires 🇦🇷
 
+🎉 **LIVE DEMO:** [https://monadpaybutton.vercel.app/](https://monadpaybutton.vercel.app/)
+*(Landing Page interactiva y demo funcional del botón de pagos)*
+
 **Monad Pay Button** lets any Argentine merchant keep charging with the MercadoPago QR they already use, while automatically receiving digital dollars (USDC) on Monad. A buyer pays in pesos; an AI settlement agent confirms the payment, converts ARS to USDC at the live rate, and mints USDC on-chain to the merchant in seconds.
 
 *Note: All code in this repository was initiated and built during the Monad Blitz Buenos Aires hackathon.*
