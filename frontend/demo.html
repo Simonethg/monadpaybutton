@@ -98,7 +98,7 @@
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     
     .btn-mp { background: #009EE3; color: white; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
-    .btn-wallet { background: #F6851B; color: white; width: 100%; }
+    .btn-wallet { background: linear-gradient(120deg, #6C47FF, #2B5BF0); color: white; width: 100%; }
     .btn-agent { background: var(--text); color: var(--bg); width: 100%; }
 
     .status-box {
@@ -127,12 +127,22 @@
   <main>
     <!-- 1. API Connection -->
     <section class="card">
-      <h2>1. Conectar MercadoPago / MercadoLibre</h2>
-      <p>Otorga acceso a Monad Pay Button para leer tus cobros y webhooks entrantes.</p>
+      <h2>1. Conectar MercadoPago</h2>
+      <p>Ingresa tus credenciales de producción para que Monad Pay Button pueda leer tus webhooks de cobros.</p>
       
+      <div class="input-group">
+        <label>Public Key</label>
+        <input type="text" id="mp-public" placeholder="APP_USR-..." />
+      </div>
+
+      <div class="input-group">
+        <label>Access Token</label>
+        <input type="password" id="mp-token" placeholder="APP_USR-..." style="font-family: monospace; width: 100%; padding: 0.75rem; font-size: 1rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); box-sizing: border-box;" />
+      </div>
+
       <button class="btn-mp" id="btn-mp">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-        Vincular Cuenta de MercadoPago
+        Guardar Credenciales
       </button>
 
       <div class="status-box" id="mp-status">✅ Cuenta vinculada exitosamente. API Key configurada.</div>
@@ -165,17 +175,26 @@
   </main>
 
   <script>
-    // 1. MercadoPago Mock Flow
+    // 1. MP Connect Flow
     const btnMp = document.getElementById('btn-mp');
     const mpStatus = document.getElementById('mp-status');
+    const mpPublic = document.getElementById('mp-public');
+    const mpToken = document.getElementById('mp-token');
     let isMpConnected = false;
 
     btnMp.addEventListener('click', () => {
+      if(!mpPublic.value.trim() || !mpToken.value.trim()) {
+        showStatus(mpStatus, "Por favor, ingresa tanto la Public Key como el Access Token.", true);
+        return;
+      }
+      
       btnMp.disabled = true;
-      btnMp.textContent = "Conectando...";
+      btnMp.textContent = "Validando...";
       setTimeout(() => {
         btnMp.style.display = 'none';
-        mpStatus.style.display = 'block';
+        mpPublic.disabled = true;
+        mpToken.disabled = true;
+        showStatus(mpStatus, "✅ Cuenta vinculada exitosamente. Webhooks configurados.", false);
         isMpConnected = true;
         checkTestReady();
       }, 1000);
