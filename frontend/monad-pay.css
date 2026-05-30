@@ -1,0 +1,390 @@
+/* 
+ * Monad Pay Button - UI System & Design Tokens
+ */
+
+:root {
+  /* Brand Tokens */
+  --pb-violet: #6C47FF;
+  --pb-violet-press: #5836E6;
+  --pb-blue: #2B5BF0;
+  --pb-gradient: linear-gradient(120deg, #6C47FF 0%, #2B5BF0 100%);
+
+  /* Light Theme (Default) */
+  --pb-bg: #F6F6F8;
+  --pb-surface: #FFFFFF;
+  --pb-surface-2: #F0EFF4;
+  --pb-border: #E4E2EC;
+  --pb-text: #16151C;
+  --pb-text-2: #56545F;
+  --pb-text-3: #8B8996;
+  --pb-success: #0B7D5A;
+  --pb-on-violet: #FFFFFF;
+  --pb-link: var(--pb-blue);
+  
+  /* Shadow & Radii */
+  --pb-r-md: 12px;
+  --pb-r-lg: 18px;
+  --pb-r-xl: 28px;
+  --pb-r-pill: 999px;
+  --pb-shadow-violet: 0 8px 24px -6px rgba(108, 71, 255, 0.45);
+  --pb-shadow-modal: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+  --pb-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-pb-theme="dark"] {
+  --pb-bg: #0E0D14;
+  --pb-surface: #18161F;
+  --pb-surface-2: #211E2B;
+  --pb-border: #2A2735;
+  --pb-text: #F2F1F6;
+  --pb-text-2: #A6A3B2;
+  --pb-text-3: #6E6B7C;
+  --pb-success: #2DD4A0;
+  --pb-link: #9D85FF;
+  --pb-shadow-violet: 0 8px 24px -6px rgba(108, 71, 255, 0.25);
+  --pb-shadow-modal: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Base Styles scoping to our container to prevent pollution */
+.monad-pay-container {
+  font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--pb-text);
+  box-sizing: border-box;
+}
+
+.monad-pay-container *, .monad-pay-container *::before, .monad-pay-container *::after {
+  box-sizing: inherit;
+}
+
+/* Visually Hidden for Screen Readers */
+.pb-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0;
+  margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;
+}
+
+/* =========================================
+   PayButton Component
+   ========================================= */
+.pb-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 56px;
+  min-width: 280px;
+  padding: 0 24px;
+  border-radius: var(--pb-r-pill);
+  background: var(--pb-gradient);
+  color: var(--pb-on-violet);
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  box-shadow: var(--pb-shadow-violet);
+  cursor: pointer;
+  transition: transform 0.2s var(--pb-ease), box-shadow 0.2s var(--pb-ease), filter 0.2s var(--pb-ease), background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.pb-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -6px rgba(108, 71, 255, 0.55);
+  filter: brightness(1.05);
+}
+
+.pb-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+  box-shadow: var(--pb-shadow-violet);
+}
+
+.pb-btn:focus-visible {
+  outline: 3px solid var(--pb-blue) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 4px rgba(43, 91, 240, 0.2), var(--pb-shadow-violet);
+}
+
+.pb-btn[data-state="loading"] {
+  pointer-events: none;
+}
+
+.pb-btn[data-state="loading"] .pb-btn-content {
+  opacity: 0;
+}
+
+.pb-btn[data-state="success"] {
+  background: var(--pb-success);
+  box-shadow: 0 8px 24px -6px rgba(45, 212, 160, 0.3);
+  pointer-events: none;
+}
+
+.pb-btn-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  transition: opacity 0.2s;
+}
+
+.pb-btn-mono {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+/* Spinner */
+.pb-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  margin-top: -12px;
+  margin-left: -12px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: pb-spin 0.8s linear infinite;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s;
+}
+.pb-btn[data-state="loading"] .pb-spinner {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Success Check */
+.pb-check-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.pb-btn[data-state="success"] .pb-check-icon {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  position: relative;
+  top: auto; left: auto;
+}
+
+.pb-btn[data-state="success"] .pb-btn-text-success {
+  display: block;
+}
+.pb-btn[data-state="success"] .pb-btn-text-default {
+  display: none;
+}
+.pb-btn-text-success {
+  display: none;
+}
+
+/* Logo Mark SVG Container */
+.pb-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 26%;
+  background: var(--pb-gradient);
+  flex-shrink: 0;
+}
+.pb-btn[data-state="success"] .pb-mark { display: none; }
+
+
+@keyframes pb-spin { to { transform: rotate(360deg); } }
+
+/* =========================================
+   Modal
+   ========================================= */
+.pb-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s var(--pb-ease), visibility 0.3s;
+}
+
+.pb-modal-backdrop.pb-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.pb-modal {
+  background: var(--pb-surface);
+  border: 1px solid var(--pb-border);
+  border-radius: var(--pb-r-xl);
+  box-shadow: var(--pb-shadow-modal);
+  width: 90%;
+  max-width: 440px;
+  padding: 32px 24px;
+  position: relative;
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.3s var(--pb-ease);
+}
+
+.pb-modal-backdrop.pb-open .pb-modal {
+  transform: translateY(0) scale(1);
+}
+
+.pb-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--pb-text-2);
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s, color 0.2s;
+}
+.pb-modal-close:hover {
+  background: var(--pb-surface-2);
+  color: var(--pb-text);
+}
+.pb-modal-close:focus-visible {
+  outline: 3px solid var(--pb-blue);
+}
+
+.pb-modal-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.pb-modal-title {
+  font-family: "Newsreader", serif;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+  color: var(--pb-text);
+}
+.pb-modal-subtitle {
+  font-size: 15px;
+  color: var(--pb-text-2);
+  margin: 0;
+}
+
+.pb-panel {
+  display: none;
+  animation: pb-fade-in 0.3s var(--pb-ease);
+}
+.pb-panel.pb-active {
+  display: block;
+}
+
+@keyframes pb-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal Panels UI */
+.pb-rail-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid var(--pb-border);
+  background: var(--pb-surface);
+  border-radius: var(--pb-r-lg);
+  margin-bottom: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+.pb-rail-btn:hover {
+  border-color: var(--pb-violet);
+  background: var(--pb-surface-2);
+}
+.pb-rail-btn:focus-visible {
+  outline: 3px solid var(--pb-blue);
+}
+.pb-rail-icon {
+  font-size: 24px;
+  margin-right: 16px;
+  display: grid; place-items: center;
+}
+.pb-rail-text { flex: 1; }
+.pb-rail-title { font-weight: 600; color: var(--pb-text); display: block; margin-bottom: 2px;}
+.pb-rail-desc { font-size: 13px; color: var(--pb-text-2); display: block;}
+.pb-microcopy { font-size: 13px; color: var(--pb-text-3); text-align: center; margin-top: 16px;}
+
+.pb-qr-wrap {
+  background: #FFF; /* Always white for contrast */
+  padding: 16px;
+  border-radius: var(--pb-r-md);
+  margin: 0 auto 24px;
+  width: 220px;
+  height: 220px;
+  border: 1px solid var(--pb-border);
+}
+
+.pb-tx-link {
+  color: var(--pb-link);
+  text-decoration: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+}
+.pb-tx-link:hover { text-decoration: underline; }
+
+.pb-success-check {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--pb-success);
+  color: #fff;
+  display: grid; place-items: center;
+  margin: 0 auto 16px;
+  font-size: 32px;
+}
+
+/* Progress Steps in Processing Panel */
+.pb-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--pb-text-3);
+  font-size: 14px;
+  margin-bottom: 12px;
+  transition: color 0.3s;
+}
+.pb-progress-step.pb-active { color: var(--pb-text); font-weight: 500; }
+.pb-progress-step.pb-done { color: var(--pb-success); }
+.pb-progress-step .pb-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+}
+.pb-progress-step.pb-active .pb-dot {
+  border-top-color: transparent;
+  animation: pb-spin 1s linear infinite;
+}
+.pb-progress-step.pb-done .pb-dot {
+  background: var(--pb-success);
+  border-color: var(--pb-success);
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

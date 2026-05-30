@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PesoBridge — Workflow del usuario</title>
+  <style>
+    :root {
+      --bg: #f3f5f9; --surface: #ffffff; --surface-2: #eef1f7; --glass: rgba(255,255,255,.7);
+      --text: #11151c; --text-muted: #4a5360; --border: #ccd3de;
+      --accent: #0a5bd3; --accent-2: #00a3e0; --crypto: #6b3fd1; --usdc: #1f8f4d;
+      --chip: #e7edf7; --chip-text: #1b3a66;
+      --dim: .42; --focus: #0a5bd3;
+    }
+    [data-theme="dark"] {
+      --bg: #0a0d12; --surface: #141921; --surface-2: #1d2430; --glass: rgba(24,30,40,.6);
+      --text: #eef2f8; --text-muted: #aab4c2; --border: #313a48;
+      --accent: #6aa6ff; --accent-2: #38b6ff; --crypto: #b79bff; --usdc: #6ee7a8;
+      --chip: #1f2a3b; --chip-text: #aacbff;
+      --dim: .35; --focus: #6aa6ff;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.55;
+      background-image: radial-gradient(900px 500px at 12% -8%, color-mix(in srgb, var(--accent-2) 22%, transparent), transparent),
+                        radial-gradient(800px 500px at 100% 0%, color-mix(in srgb, var(--crypto) 20%, transparent), transparent);
+      background-attachment: fixed; }
+
+    header { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+      padding: 1.1rem 1.4rem; backdrop-filter: blur(10px); background: var(--glass);
+      border-bottom:1px solid var(--border); position: sticky; top:0; z-index: 5; }
+    .brand { display:flex; align-items:center; gap:.7rem; }
+    .logo { width:38px; height:38px; border-radius:11px; display:grid; place-items:center; color:#fff; font-weight:800;
+      background: linear-gradient(135deg, var(--accent-2), var(--crypto)); box-shadow: 0 6px 20px color-mix(in srgb, var(--crypto) 40%, transparent); }
+    .brand h1 { margin:0; font-size:1.15rem; }
+    .brand .tag { font-size:.8rem; color:var(--text-muted); }
+    .switch { display:inline-flex; align-items:center; gap:.5rem; background:var(--surface-2);
+      border:1px solid var(--border); border-radius:999px; padding:.35rem .7rem; cursor:pointer; color:var(--text); font-weight:600; }
+
+    main { max-width: 1080px; margin: 0 auto; padding: 1.5rem 1.4rem 4rem; }
+    .lead { font-size:.95rem; color:var(--text-muted); max-width:70ch; }
+
+    /* Filtros */
+    .filters { display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem; margin:1.5rem 0 2rem; }
+    @media (max-width:760px){ .filters { grid-template-columns:1fr; } }
+    .filter { background: var(--glass); backdrop-filter: blur(8px); border:1px solid var(--border); border-radius:14px; padding:1rem; }
+    .filter h3 { margin:0 0 .2rem; font-size:.95rem; }
+    .filter p { margin:0 0 .7rem; font-size:.78rem; color:var(--text-muted); }
+    .seg { display:grid; gap:.4rem; }
+    .seg button { text-align:left; display:flex; gap:.6rem; align-items:flex-start; cursor:pointer;
+      background: var(--surface-2); border:1px solid var(--border); color:var(--text);
+      border-radius:10px; padding:.55rem .65rem; font-size:.85rem; transition: all .15s; }
+    .seg button .k { font-weight:800; width:1.3rem; flex:none; color:var(--accent); }
+    .seg button[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, var(--surface-2)); }
+    .seg button:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+
+    /* Fases */
+    .phase { background: var(--surface); border:1px solid var(--border); border-radius:16px; padding:1.25rem 1.25rem 1.1rem; margin-bottom:1.1rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 14px 40px rgba(0,0,0,.06); }
+    .phase > h2 { margin:.1rem 0 .2rem; font-size:1.05rem; display:flex; align-items:center; gap:.6rem; }
+    .phase .num { width:26px; height:26px; border-radius:8px; display:grid; place-items:center; font-size:.8rem; font-weight:800;
+      color:#fff; background:linear-gradient(135deg,var(--accent),var(--crypto)); flex:none; }
+    .phase .desc { margin:.1rem 0 .9rem; font-size:.85rem; color:var(--text-muted); }
+
+    .stepline { display:grid; gap:.5rem; }
+    .step { display:flex; gap:.7rem; align-items:flex-start; font-size:.92rem; }
+    .step .b { width:20px; height:20px; border-radius:50%; border:2px solid var(--usdc); flex:none; margin-top:.15rem; position:relative; }
+    .step .b::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--usdc); }
+
+    .opts { display:grid; grid-template-columns:repeat(3,1fr); gap:.7rem; margin-top:.4rem; }
+    @media (max-width:760px){ .opts { grid-template-columns:1fr; } }
+    .opt { border:1px solid var(--border); border-radius:12px; padding:.8rem; background:var(--surface-2); transition: all .18s; position:relative; }
+    .opt .head { display:flex; align-items:center; gap:.5rem; margin-bottom:.35rem; }
+    .opt .key { width:24px; height:24px; border-radius:7px; display:grid; place-items:center; font-weight:800; font-size:.8rem; color:#fff;
+      background:linear-gradient(135deg,var(--accent-2),var(--crypto)); flex:none; }
+    .opt .title { font-weight:700; font-size:.9rem; }
+    .opt .body { font-size:.82rem; color:var(--text-muted); }
+    .opt .road { font-size:.68rem; font-weight:700; color:var(--chip-text); background:var(--chip); border-radius:999px; padding:.05rem .45rem; }
+    .opt.dim { opacity: var(--dim); filter: grayscale(.35); }
+    .opt.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
+
+    .result-banner { margin-top:1rem; border-radius:12px; padding:.9rem 1rem; font-size:.9rem;
+      background: color-mix(in srgb, var(--usdc) 18%, var(--surface)); border:1px solid var(--usdc); color:var(--text); }
+    .result-banner strong { color: var(--usdc); }
+    .chip { display:inline-block; font-size:.72rem; font-weight:700; border-radius:999px; padding:.1rem .55rem; background:var(--chip); color:var(--chip-text); }
+    .sr-only { position:absolute; width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0); }
+    footer { color:var(--text-muted); font-size:.8rem; text-align:center; margin-top:1.5rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="logo" aria-hidden="true">PB</span>
+      <div>
+        <h1>PesoBridge · Workflow del usuario</h1>
+        <span class="tag">Un QR → USDC en Monad · white label de cobros</span>
+      </div>
+    </div>
+    <button id="themeToggle" class="switch" type="button" aria-pressed="true">
+      <span aria-hidden="true" id="themeIcon">☀️</span><span id="themeLabel">Modo claro</span>
+    </button>
+  </header>
+
+  <main>
+    <p class="lead">Recorré el flujo de punta a punta. Usá los filtros para elegir entre las opciones A, B y C en cada punto de decisión: las tarjetas resaltadas son el camino activo, las atenuadas son las alternativas.</p>
+
+    <!-- FILTROS -->
+    <div class="filters">
+      <div class="filter" role="group" aria-labelledby="f-canal">
+        <h3 id="f-canal">Canal de distribución</h3>
+        <p>Cómo se integra el comercio.</p>
+        <div class="seg" data-group="canal">
+          <button type="button" data-key="A" aria-pressed="true"><span class="k">A</span> Widget embebible (1 línea)</button>
+          <button type="button" data-key="B" aria-pressed="false"><span class="k">B</span> Skill para IA</button>
+          <button type="button" data-key="C" aria-pressed="false"><span class="k">C</span> Plugin WooCommerce/Shopify · roadmap</button>
+        </div>
+      </div>
+
+      <div class="filter" role="group" aria-labelledby="f-riel">
+        <h3 id="f-riel">Riel de pago</h3>
+        <p>Cómo paga el cliente.</p>
+        <div class="seg" data-group="riel">
+          <button type="button" data-key="A" aria-pressed="false"><span class="k">A</span> Pesos (MercadoPago)</button>
+          <button type="button" data-key="B" aria-pressed="false"><span class="k">B</span> Cripto (USDC directo)</button>
+          <button type="button" data-key="C" aria-pressed="true"><span class="k">C</span> Ambos · QR agnóstico</button>
+        </div>
+      </div>
+
+      <div class="filter" role="group" aria-labelledby="f-agente">
+        <h3 id="f-agente">Modo del agente</h3>
+        <p>Cómo liquida en Monad.</p>
+        <div class="seg" data-group="agente">
+          <button type="button" data-key="A" aria-pressed="false"><span class="k">A</span> Webhook (push)</button>
+          <button type="button" data-key="B" aria-pressed="true"><span class="k">B</span> Watcher autónomo + LLM</button>
+          <button type="button" data-key="C" aria-pressed="false"><span class="k">C</span> Agente full (fraude + tesorería)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 1: ONBOARDING -->
+    <section class="phase">
+      <h2><span class="num">1</span> Onboarding del comercio <span class="chip">menos de 2 min</span></h2>
+      <p class="desc">Autenticación estilo WooCommerce y verificación de wallet anti-hackeo.</p>
+      <div class="stepline">
+        <div class="step"><span class="b"></span><div><strong>Conectar MercadoPago.</strong> Botón "Vincular cuenta de MercadoPago" (OAuth), igual que el plugin de WooCommerce, con opción de pegar credenciales (Access Token + Public Key) como fallback.</div></div>
+        <div class="step"><span class="b"></span><div><strong>Ingresar wallet de cobro.</strong> Dirección en Monad donde quiere recibir los USDC.</div></div>
+        <div class="step"><span class="b"></span><div><strong>Confirmar propiedad de la wallet.</strong> Conecta la wallet y firma un mensaje sin gas. Queda registrada on-chain en el MerchantRegistry, así nadie puede cargar una wallet que no controla.</div></div>
+      </div>
+      <p class="desc" style="margin-top:.9rem"><strong>Entrega de la integración según el canal elegido:</strong></p>
+      <div class="opts" data-depends="canal">
+        <div class="opt" data-group="canal" data-key="A">
+          <div class="head"><span class="key">A</span><span class="title">Widget</span></div>
+          <div class="body">Copia un snippet de una línea y lo pega en su sitio. Listo.</div>
+        </div>
+        <div class="opt" data-group="canal" data-key="B">
+          <div class="head"><span class="key">B</span><span class="title">Skill IA</span></div>
+          <div class="body">Recibe una API key e instala el skill en su asistente.</div>
+        </div>
+        <div class="opt" data-group="canal" data-key="C">
+          <div class="head"><span class="key">C</span><span class="title">Plugin <span class="road">roadmap</span></span></div>
+          <div class="body">Instala el plugin de WooCommerce o Shopify y pega su API key.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FASE 2: GENERAR COBRO -->
+    <section class="phase">
+      <h2><span class="num">2</span> Generación del cobro</h2>
+      <p class="desc">Se crea una intención de pago y un QR único, según el canal.</p>
+      <div class="opts" data-depends="canal">
+        <div class="opt" data-group="canal" data-key="A">
+          <div class="head"><span class="key">A</span><span class="title">Widget</span></div>
+          <div class="body">El botón en el sitio abre el checkout con el QR de PesoBridge.</div>
+        </div>
+        <div class="opt" data-group="canal" data-key="B">
+          <div class="head"><span class="key">B</span><span class="title">Skill IA</span></div>
+          <div class="body">El comercio le pide a la IA "cobrá $X"; el skill llama a PesoBridge y devuelve QR o link.</div>
+        </div>
+        <div class="opt" data-group="canal" data-key="C">
+          <div class="head"><span class="key">C</span><span class="title">Plugin <span class="road">roadmap</span></span></div>
+          <div class="body">El checkout de la tienda genera el QR en el paso de pago.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FASE 3: PAGO DEL CLIENTE -->
+    <section class="phase">
+      <h2><span class="num">3</span> El cliente paga</h2>
+      <p class="desc">Un mismo QR, el cliente elige el riel. Mismo resultado en dólares.</p>
+      <div class="opts" data-depends="riel">
+        <div class="opt" data-group="riel" data-key="A">
+          <div class="head"><span class="key">A</span><span class="title">Pesos</span></div>
+          <div class="body">Paga con MercadoPago en pesos, como en cualquier checkout.</div>
+        </div>
+        <div class="opt" data-group="riel" data-key="B">
+          <div class="head"><span class="key">B</span><span class="title">Cripto</span></div>
+          <div class="body">Envía USDC directo a la intención de pago on-chain en Monad.</div>
+        </div>
+        <div class="opt" data-group="riel" data-key="C">
+          <div class="head"><span class="key">C</span><span class="title">Ambos</span></div>
+          <div class="body">QR agnóstico: el cliente decide pesos o cripto en el momento.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FASE 4: LIQUIDACION -->
+    <section class="phase">
+      <h2><span class="num">4</span> Liquidación del agente en Monad</h2>
+      <p class="desc">El agente garantiza USDC al comercio. El smart contract paga solo a la wallet verificada.</p>
+      <div class="opts" data-depends="agente">
+        <div class="opt" data-group="agente" data-key="A">
+          <div class="head"><span class="key">A</span><span class="title">Webhook</span></div>
+          <div class="body">MercadoPago o la chain notifican al agente, que ejecuta settle. Simple y robusto.</div>
+        </div>
+        <div class="opt" data-group="agente" data-key="B">
+          <div class="head"><span class="key">B</span><span class="title">Watcher + LLM</span></div>
+          <div class="body">Vigila los dos rieles en loop, decide, settlea y genera el recibo en lenguaje natural.</div>
+        </div>
+        <div class="opt" data-group="agente" data-key="C">
+          <div class="head"><span class="key">C</span><span class="title">Agente full</span></div>
+          <div class="body">Suma detección de fraude y reglas de tesorería (convertir sobre cierto umbral).</div>
+        </div>
+      </div>
+      <div class="result-banner">
+        <strong>Resultado:</strong> <span id="result-text">USDC acreditado a la wallet verificada del comercio en Monad, con transacción visible en el explorer.</span>
+      </div>
+    </section>
+
+    <!-- FASE 5: CONFIRMACION -->
+    <section class="phase">
+      <h2><span class="num">5</span> Confirmación y consulta</h2>
+      <p class="desc">El comercio ve el cobro en dólares y puede consultarle al agente.</p>
+      <div class="stepline">
+        <div class="step"><span class="b"></span><div><strong>Comprobante.</strong> Monto en USDC, riel usado y link a la transacción en el explorer de Monad.</div></div>
+        <div class="step"><span class="b"></span><div><strong>Q&A.</strong> "¿Cuánto convertí hoy? ¿Por qué riel cobré?" — el agente responde en lenguaje natural.</div></div>
+      </div>
+    </section>
+
+    <footer>PesoBridge · Monad Blitz Buenos Aires · smart contract MerchantRegistry + settlement desplegado en Monad testnet</footer>
+  </main>
+
+  <script>
+    // Tema
+    const root=document.documentElement, tg=document.getElementById("themeToggle");
+    const ti=document.getElementById("themeIcon"), tl=document.getElementById("themeLabel");
+    function theme(t){ root.setAttribute("data-theme",t); const d=t==="dark";
+      tg.setAttribute("aria-pressed",String(d)); ti.textContent=d?"☀️":"🌙"; tl.textContent=d?"Modo claro":"Modo oscuro";
+      try{localStorage.setItem("pb-theme",t);}catch(e){} }
+    (function(){ let s=null; try{s=localStorage.getItem("pb-theme");}catch(e){}
+      const dk=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches; theme(s||(dk?"dark":"light")); })();
+    tg.addEventListener("click",()=>theme(root.getAttribute("data-theme")==="dark"?"light":"dark"));
+
+    // Estado de filtros
+    const state = { canal:"A", riel:"C", agente:"B" };
+
+    function applyFilters(){
+      document.querySelectorAll(".opts[data-depends]").forEach(box=>{
+        const g=box.getAttribute("data-depends");
+        box.querySelectorAll(".opt").forEach(opt=>{
+          const on = opt.getAttribute("data-key")===state[g];
+          opt.classList.toggle("on", on);
+          opt.classList.toggle("dim", !on);
+        });
+      });
+      // Texto de resultado según riel
+      const rt=document.getElementById("result-text");
+      const map={
+        A:"Pago en pesos convertido al tipo de cambio ARS/USD y acreditado como USDC a la wallet verificada en Monad.",
+        B:"Pago en USDC recibido directo on-chain y acreditado a la wallet verificada en Monad, sin conversión.",
+        C:"Sea en pesos o en cripto, el comercio recibe USDC en su wallet verificada en Monad, con transacción en el explorer."
+      };
+      rt.textContent = map[state.riel];
+    }
+
+    document.querySelectorAll(".seg").forEach(seg=>{
+      const g=seg.getAttribute("data-group");
+      seg.querySelectorAll("button").forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          state[g]=btn.getAttribute("data-key");
+          seg.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed", String(b===btn)));
+          applyFilters();
+        });
+      });
+    });
+    applyFilters();
+  </script>
+</body>
+</html>

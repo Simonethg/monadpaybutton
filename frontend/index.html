@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PesoBridge — MercadoPago QR a USDC en Monad</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    /* WCAG 2.1 AA: theme tokens for light and dark, both contrast-checked. */
+    :root {
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --surface-2: #eef1f5;
+      --text: #14181f;        /* on --surface: contrast > 12:1 */
+      --text-muted: #4a5360;  /* on --surface: contrast > 6:1 */
+      --border: #c6cdd6;
+      --accent: #0a5bd3;      /* on white: contrast 5.3:1 */
+      --accent-text: #ffffff;
+      --success-bg: #e4f6ea;
+      --success-text: #0d5b2c; /* on success-bg: > 6:1 */
+      --danger-text: #9a1c1c;
+      --focus: #0a5bd3;
+    }
+    [data-theme="dark"] {
+      --bg: #0f1318;
+      --surface: #181d24;
+      --surface-2: #212834;
+      --text: #f1f4f8;        /* on --surface: > 13:1 */
+      --text-muted: #aeb7c4;  /* on --surface: > 6:1 */
+      --border: #38414f;
+      --accent: #6aa6ff;      /* on dark surface: > 6:1 */
+      --accent-text: #06101f;
+      --success-bg: #103423;
+      --success-text: #8ef0b4;
+      --danger-text: #ff9b9b;
+      --focus: #6aa6ff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 0.6rem; }
+    .brand h1 { font-size: 1.15rem; margin: 0; }
+    .brand .tag { font-size: 0.8rem; color: var(--text-muted); }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+    .card h2 { margin: 0 0 1rem; font-size: 1.05rem; }
+
+    label { display: block; font-weight: 600; margin: 0.75rem 0 0.3rem; font-size: 0.92rem; }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 0.6rem 0.7rem;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+    }
+    .hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    button {
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 9px;
+      border: 1px solid transparent;
+      padding: 0.6rem 0.9rem;
+    }
+    .btn-primary { background: var(--accent); color: var(--accent-text); width: 100%; margin-top: 1rem; }
+    .btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+    .btn-pay { background: var(--accent); color: var(--accent-text); width: 100%; margin-top: 0.75rem; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Visible focus for keyboard users (WCAG 2.4.7). */
+    a:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .qr-wrap { display: flex; justify-content: center; padding: 1rem; background: #ffffff; border-radius: 10px; margin-top: 1rem; min-height: 60px; }
+    .qr-wrap:empty::before { content: "El QR de cobro aparecerá aquí"; color: #5a5a5a; font-size: 0.85rem; align-self: center; }
+
+    .result { margin-top: 1rem; padding: 1rem; border-radius: 10px; background: var(--success-bg); color: var(--success-text); }
+    .result.error { background: transparent; color: var(--danger-text); border: 1px solid var(--danger-text); }
+    .result dl { display: grid; grid-template-columns: auto 1fr; gap: 0.3rem 0.8rem; margin: 0.5rem 0 0; font-size: 0.9rem; }
+    .result dt { font-weight: 600; }
+    .result dd { margin: 0; word-break: break-all; }
+    .result a { color: inherit; }
+
+    .switch {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 999px; padding: 0.35rem 0.7rem;
+    }
+    .toolbar { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+    .config { font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; }
+    .config input { font-size: 0.85rem; padding: 0.4rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span aria-hidden="true" style="font-size:1.5rem">⚡</span>
+      <div>
+        <h1>PesoBridge</h1>
+        <span class="tag">MercadoPago QR → USDC en Monad</span>
+      </div>
+    </div>
+    <button id="themeToggle" class="switch" type="button" aria-pressed="false">
+      <span aria-hidden="true" id="themeIcon">🌙</span>
+      <span id="themeLabel">Modo oscuro</span>
+    </button>
+  </header>
+
+  <main>
+    <!-- Merchant side -->
+    <section class="card" aria-labelledby="merchant-title">
+      <h2 id="merchant-title">Cobro del comercio</h2>
+
+      <label for="ars">Monto a cobrar (ARS)</label>
+      <input id="ars" type="number" inputmode="decimal" min="1" step="1" value="50000"
+             aria-describedby="ars-hint" />
+      <p id="ars-hint" class="hint">El cliente paga en pesos con MercadoPago. El comercio recibe USDC.</p>
+
+      <label for="buyer">Wallet del comprador (recibe USDC)</label>
+      <input id="buyer" type="text" autocomplete="off" spellcheck="false"
+             value="0x000000000000000000000000000000000000dEaD"
+             aria-describedby="buyer-hint" />
+      <p id="buyer-hint" class="hint">Dirección en Monad testnet. En producción se genera al vuelo para el cliente.</p>
+
+      <button id="genQr" class="btn-primary" type="button">Generar QR de cobro</button>
+      <div id="qr" class="qr-wrap" role="img" aria-label="Código QR de cobro de MercadoPago"></div>
+
+      <button id="pay" class="btn-pay" type="button" disabled>Simular pago confirmado</button>
+      <p class="hint">En vivo: el cliente escanea y paga en el sandbox de MercadoPago. Este botón es el caso de contingencia.</p>
+    </section>
+
+    <!-- Settlement side -->
+    <section class="card" aria-labelledby="settle-title">
+      <h2 id="settle-title">Liquidación on-chain</h2>
+      <p class="hint">El agente IA detecta el pago, calcula el tipo de cambio y acuña USDC en Monad.</p>
+
+      <div id="status" class="result" role="status" aria-live="polite" hidden></div>
+
+      <div class="config">
+        <label for="agentUrl">URL del agente</label>
+        <input id="agentUrl" type="text" value="http://localhost:8787" />
+      </div>
+
+      <h2 style="margin-top:1.5rem">Consultá al agente</h2>
+      <label for="q" class="sr-only">Pregunta para el agente</label>
+      <input id="q" type="text" placeholder="¿Cuánto convertí hoy?" />
+      <div class="toolbar">
+        <button id="ask" class="btn-secondary" type="button">Preguntar</button>
+      </div>
+      <div id="answer" class="result" role="status" aria-live="polite" hidden></div>
+    </section>
+  </main>
+
+  <script>
+    // --- Theme: respects system preference, persists choice, accessible toggle ---
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const icon = document.getElementById("themeIcon");
+    const labelEl = document.getElementById("themeLabel");
+
+    function applyTheme(theme) {
+      root.setAttribute("data-theme", theme);
+      const dark = theme === "dark";
+      toggle.setAttribute("aria-pressed", String(dark));
+      icon.textContent = dark ? "☀️" : "🌙";
+      labelEl.textContent = dark ? "Modo claro" : "Modo oscuro";
+      try { localStorage.setItem("pb-theme", theme); } catch (_) {}
+    }
+    (function initTheme() {
+      let saved = null;
+      try { saved = localStorage.getItem("pb-theme"); } catch (_) {}
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      applyTheme(saved || (prefersDark ? "dark" : "light"));
+    })();
+    toggle.addEventListener("click", () => {
+      applyTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    });
+
+    // --- Merchant flow ---
+    const arsInput = document.getElementById("ars");
+    const buyerInput = document.getElementById("buyer");
+    const genBtn = document.getElementById("genQr");
+    const payBtn = document.getElementById("pay");
+    const qrBox = document.getElementById("qr");
+    const statusBox = document.getElementById("status");
+    const agentUrlInput = document.getElementById("agentUrl");
+
+    let currentPaymentId = null;
+
+    genBtn.addEventListener("click", () => {
+      const ars = Number(arsInput.value);
+      const buyer = buyerInput.value.trim();
+      if (!(ars > 0)) { showStatus("Ingresá un monto válido en ARS.", true); return; }
+      if (!/^0x[a-fA-F0-9]{40}$/.test(buyer)) { showStatus("Wallet del comprador inválida.", true); return; }
+
+      currentPaymentId = "MP-" + Date.now();
+      // Encode a MercadoPago-style payment string into the QR.
+      const payload = JSON.stringify({ id: currentPaymentId, amount: ars, currency: "ARS", buyer });
+      qrBox.innerHTML = "";
+      new QRCode(qrBox, { text: payload, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
+      qrBox.setAttribute("aria-label", `Código QR de cobro por ${ars} pesos`);
+      payBtn.disabled = false;
+      hide(statusBox);
+    });
+
+    payBtn.addEventListener("click", async () => {
+      const ars = Number(arsInput.value);
+      const buyer = buyerInput.value.trim();
+      const base = agentUrlInput.value.replace(/\/$/, "");
+      payBtn.disabled = true;
+      showStatus("Procesando pago y liquidando en Monad…", false);
+      try {
+        const res = await fetch(base + "/webhook/mercadopago", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id: currentPaymentId, transaction_amount: ars, status: "approved", buyer }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || "Error al liquidar");
+        renderSettlement(data);
+      } catch (err) {
+        showStatus("No se pudo liquidar: " + err.message, true);
+      } finally {
+        payBtn.disabled = false;
+      }
+    });
+
+    function renderSettlement(d) {
+      statusBox.classList.remove("error");
+      statusBox.innerHTML =
+        `<strong>✅ Liquidado en Monad</strong>` +
+        `<dl>` +
+        `<dt>Pagado</dt><dd>ARS ${Number(d.arsAmount).toLocaleString("es-AR")}</dd>` +
+        `<dt>Recibido</dt><dd>${Number(d.usdcAmount).toFixed(2)} USDC</dd>` +
+        `<dt>Tipo de cambio</dt><dd>${Number(d.rate).toLocaleString("es-AR")} ARS/USD (${d.fxSource})</dd>` +
+        `<dt>Comprador</dt><dd>${d.buyer}</dd>` +
+        `<dt>Tx</dt><dd><a href="${d.explorer}" target="_blank" rel="noopener">${d.txHash}</a></dd>` +
+        `<dt>Recibo IA</dt><dd>${d.receipt}</dd>` +
+        `</dl>`;
+      show(statusBox);
+    }
+
+    function showStatus(msg, isError) {
+      statusBox.classList.toggle("error", !!isError);
+      statusBox.textContent = msg;
+      show(statusBox);
+    }
+    function show(el) { el.hidden = false; }
+    function hide(el) { el.hidden = true; }
+
+    // --- Merchant Q&A ---
+    const askBtn = document.getElementById("ask");
+    const answerBox = document.getElementById("answer");
+    askBtn.addEventListener("click", async () => {
+      const q = document.getElementById("q").value.trim();
+      if (!q) return;
+      const base = agentUrlInput.value.replace(/\/$/, "");
+      answerBox.classList.remove("error");
+      answerBox.textContent = "Pensando…";
+      show(answerBox);
+      try {
+        const res = await fetch(base + "/ask", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ question: q }),
+        });
+        const data = await res.json();
+        answerBox.textContent = data.answer || data.error || "Sin respuesta.";
+      } catch (err) {
+        answerBox.classList.add("error");
+        answerBox.textContent = "Error: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

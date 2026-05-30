@@ -1,0 +1,20 @@
+{
+  "name": "pesobridge-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AI settlement agent: MercadoPago QR payments -> USDC on Monad",
+  "scripts": {
+    "start": "node --env-file=.env src/server.js",
+    "smoke": "node smoke.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "ethers": "^6.13.2",
+    "express": "^4.19.2"
+  },
+  "main": "src/server.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

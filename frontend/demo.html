@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PesoBridge — Dashboard del Comercio</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.10.0/ethers.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --surface-2: #eef1f5;
+      --text: #14181f;
+      --text-muted: #4a5360;
+      --border: #c6cdd6;
+      --accent: #0a5bd3;
+      --accent-text: #ffffff;
+      --success-bg: #e4f6ea;
+      --success-text: #0d5b2c;
+      --danger-text: #9a1c1c;
+      --focus: #0a5bd3;
+      --radius: 12px;
+    }
+    [data-theme="dark"] {
+      --bg: #0f1318;
+      --surface: #181d24;
+      --surface-2: #212834;
+      --text: #f1f4f8;
+      --text-muted: #aeb7c4;
+      --border: #38414f;
+      --accent: #6aa6ff;
+      --accent-text: #06101f;
+      --success-bg: #103423;
+      --success-text: #8ef0b4;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      padding: 1.5rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { display: flex; align-items: center; gap: 0.8rem; }
+    .brand h1 { margin: 0; font-size: 1.3rem; font-weight: 600; }
+    .badge { background: #6C47FF; color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+
+    main {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      display: grid; gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .card h2 { margin: 0 0 0.5rem; font-size: 1.15rem; }
+    .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+
+    .input-group { margin-bottom: 1rem; }
+    label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem; }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      box-sizing: border-box;
+      font-family: monospace;
+    }
+
+    button {
+      padding: 0.75rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .btn-mp { background: #009EE3; color: white; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn-wallet { background: #F6851B; color: white; width: 100%; }
+    .btn-agent { background: var(--text); color: var(--bg); width: 100%; }
+
+    .status-box {
+      margin-top: 1rem; padding: 1rem; border-radius: 8px;
+      background: var(--success-bg); color: var(--success-text);
+      display: none; font-weight: 500; font-size: 0.95rem;
+    }
+    
+    .status-box.error {
+      background: transparent; border: 1px solid var(--danger-text); color: var(--danger-text);
+    }
+
+    .tx-link { color: inherit; text-decoration: underline; word-break: break-all; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span style="font-size: 1.5rem">⚡</span>
+      <h1>PesoBridge Dashboard</h1>
+      <span class="badge">Merchant Hub</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. API Connection -->
+    <section class="card">
+      <h2>1. Conectar MercadoPago / MercadoLibre</h2>
+      <p>Otorga acceso a PesoBridge para leer tus cobros y webhooks entrantes.</p>
+      
+      <button class="btn-mp" id="btn-mp">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        Vincular Cuenta de MercadoPago
+      </button>
+
+      <div class="status-box" id="mp-status">✅ Cuenta vinculada exitosamente. API Key configurada.</div>
+    </section>
+
+    <!-- 2. Wallet Configuration & Validation -->
+    <section class="card">
+      <h2>2. Configurar Billetera de Liquidación</h2>
+      <p>Ingresa la wallet donde recibirás los USDC en Monad Testnet. Deberás firmar un mensaje para demostrar que eres el propietario.</p>
+
+      <div class="input-group">
+        <label>Dirección (Wallet Address)</label>
+        <input type="text" id="wallet-address" placeholder="0x..." />
+      </div>
+
+      <button class="btn-wallet" id="btn-wallet">✍️ Firmar y Validar Billetera</button>
+
+      <div class="status-box" id="wallet-status"></div>
+    </section>
+
+    <!-- 3. Integration Testing -->
+    <section class="card" style="border: 2px dashed var(--border); background: var(--surface-2);">
+      <h2>3. Simulador de Integración (Testing)</h2>
+      <p>Simula un pago en tiempo real para verificar que el Agente captura el Webhook y liquida on-chain.</p>
+      
+      <button class="btn-agent" id="btn-test" disabled>🚀 Disparar Pago de Prueba (50,000 ARS)</button>
+
+      <div class="status-box" id="test-status"></div>
+    </section>
+  </main>
+
+  <script>
+    // 1. MercadoPago Mock Flow
+    const btnMp = document.getElementById('btn-mp');
+    const mpStatus = document.getElementById('mp-status');
+    let isMpConnected = false;
+
+    btnMp.addEventListener('click', () => {
+      btnMp.disabled = true;
+      btnMp.textContent = "Conectando...";
+      setTimeout(() => {
+        btnMp.style.display = 'none';
+        mpStatus.style.display = 'block';
+        isMpConnected = true;
+        checkTestReady();
+      }, 1000);
+    });
+
+    // 2. Wallet Validation Flow (ethers.js)
+    const btnWallet = document.getElementById('btn-wallet');
+    const walletInput = document.getElementById('wallet-address');
+    const walletStatus = document.getElementById('wallet-status');
+    let isWalletValidated = false;
+
+    btnWallet.addEventListener('click', async () => {
+      const address = walletInput.value.trim();
+      if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+        showStatus(walletStatus, "Por favor, ingresa una dirección válida.", true);
+        return;
+      }
+
+      if (!window.ethereum) {
+        showStatus(walletStatus, "No se detectó MetaMask o un proveedor Web3.", true);
+        return;
+      }
+
+      try {
+        btnWallet.disabled = true;
+        btnWallet.textContent = "Solicitando firma...";
+
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = await provider.getSigner();
+        
+        const signerAddress = await signer.getAddress();
+        if (signerAddress.toLowerCase() !== address.toLowerCase()) {
+          showStatus(walletStatus, `Debes firmar con la cuenta seleccionada (${address}), pero firmaste con ${signerAddress}.`, true);
+          btnWallet.disabled = false;
+          btnWallet.textContent = "✍️ Firmar y Validar Billetera";
+          return;
+        }
+
+        const message = `Autorizo a PesoBridge a liquidar pagos en esta wallet: ${address}\nNonce: ${Date.now()}`;
+        const signature = await signer.signMessage(message);
+
+        btnWallet.style.display = 'none';
+        showStatus(walletStatus, `✅ Billetera validada con éxito. Firma: ${signature.substring(0,20)}...`, false);
+        walletInput.disabled = true;
+        isWalletValidated = true;
+        checkTestReady();
+
+      } catch (err) {
+        showStatus(walletStatus, "Error en la firma: " + err.message, true);
+        btnWallet.disabled = false;
+        btnWallet.textContent = "✍️ Firmar y Validar Billetera";
+      }
+    });
+
+    // 3. Testing Flow
+    const btnTest = document.getElementById('btn-test');
+    const testStatus = document.getElementById('test-status');
+
+    function checkTestReady() {
+      if (isMpConnected && isWalletValidated) {
+        btnTest.disabled = false;
+      }
+    }
+
+    btnTest.addEventListener('click', async () => {
+      btnTest.disabled = true;
+      btnTest.textContent = "Ejecutando Agente...";
+      showStatus(testStatus, "Simulando Webhook y liquidando en Monad...", false);
+
+      try {
+        const payload = {
+          id: "TEST-" + Date.now(),
+          transaction_amount: 50000,
+          status: "approved",
+          buyer: walletInput.value.trim()
+        };
+
+        const res = await fetch("http://localhost:8787/webhook/mercadopago", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        
+        const data = await res.json();
+        
+        if (!data.ok) throw new Error(data.error || "Error desconocido del agente");
+
+        testStatus.innerHTML = `
+          ✅ <strong>Liquidado en Monad</strong><br/>
+          Se generó el Webhook y el Agente envió los USDC.<br/>
+          Tx: <a class="tx-link" href="${data.explorer}" target="_blank">${data.txHash}</a>
+        `;
+        testStatus.classList.remove("error");
+
+      } catch (err) {
+        showStatus(testStatus, "Fallo al conectar con el Agente local: " + err.message, true);
+      } finally {
+        btnTest.disabled = false;
+        btnTest.textContent = "🚀 Re-intentar Pago de Prueba";
+      }
+    });
+
+    function showStatus(el, msg, isError) {
+      el.textContent = msg;
+      el.style.display = 'block';
+      el.classList.toggle('error', isError);
+    }
+  </script>
+</body>
+</html>
