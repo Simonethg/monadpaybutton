@@ -21,7 +21,7 @@
     link.id = 'monad-pay-css';
     link.rel = 'stylesheet';
     // For local dev, we assume it's in the same folder. In production this would be absolute URL.
-    link.href = './monad-pay.css'; 
+    link.href = './monad-pay.css?v=' + Date.now(); 
     document.head.appendChild(link);
     
     // Inject fonts
@@ -222,7 +222,7 @@
       if(qrEl.innerHTML === "") {
         const scr = document.createElement('script');
         scr.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
-        scr.onload = () => new QRCode(qrEl, { text: "mock_payment", width: 188, height: 188 });
+        scr.onload = () => new QRCode(qrEl, { text: "mock_payment", width: 156, height: 156 });
         document.head.appendChild(scr);
       }
     });

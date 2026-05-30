@@ -233,7 +233,7 @@
   max-width: 440px;
   max-height: 90vh;
   overflow-y: auto;
-  padding: 32px 24px;
+  padding: 24px 20px;
   position: relative;
   transform: translateY(20px) scale(0.95);
   transition: transform 0.3s var(--pb-ease);
@@ -330,11 +330,11 @@
 
 .pb-qr-wrap {
   background: #FFF; /* Always white for contrast */
-  padding: 16px;
+  padding: 12px;
   border-radius: var(--pb-r-md);
-  margin: 0 auto 24px;
-  width: 220px;
-  height: 220px;
+  margin: 0 auto 16px;
+  width: 180px;
+  height: 180px;
   border: 1px solid var(--pb-border);
 }
 
